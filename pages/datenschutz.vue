@@ -19,8 +19,8 @@ useSeo({
           </address>
         </div>
         <div>
-          <h2 class="font-display text-2xl text-ink mb-2">Server-Logfiles</h2>
-          <p>Beim Aufruf der Website werden durch den Hosting-Provider automatisch technische Daten (z. B. IP-Adresse, Datum/Uhrzeit, abgerufene Seite, Browsertyp) zur Auslieferung und Sicherheit verarbeitet. Rechtsgrundlage: berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO).</p>
+          <h2 class="font-display text-2xl text-ink mb-2">Hosting und Server-Logfiles</h2>
+          <p>Diese Website wird bei der ALL-INKL.COM — Neue Medien Münnich, Hauptstraße 68, 02742 Friedersdorf, Deutschland gehostet; die Server stehen in Deutschland. Beim Aufruf werden automatisch technische Daten verarbeitet (IP-Adresse, Datum und Uhrzeit, abgerufene Seite, Browsertyp), die der Auslieferung und Sicherheit dienen. Rechtsgrundlage: berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO).</p>
         </div>
         <div>
           <h2 class="font-display text-2xl text-ink mb-2">Kontakt- und Anfrageformular</h2>
