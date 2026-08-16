@@ -1,5 +1,9 @@
 <script setup>
-useHead({ title: 'Restaurant & Wirtshaus — Schildbacherhof' })
+useSeo({
+  title: 'Speisekarte & Wochenmenü — Schildbacherhof Hartberg',
+  description: 'Wochenmenü und À-la-carte-Karte zum Ansehen und Herunterladen. Regionale Küche von Küchenchef Florian Gollner — durchgehend warm, mittags wie abends.',
+  bild: '/images/restaurant-exterior-night.jpg'
+})
 const tab = ref('woche')
 const menus = {
   woche: { label: 'Wochenmenü', file: 'wochenmenue' },
@@ -25,7 +29,9 @@ const current = computed(() => {
   return {
     label: m.label,
     src: s?.v ? `${base}?v=${s.v}` : base,
-    updated: s?.updated || null
+    updated: s?.updated || null,
+    // Seitenbilder fürs Handy — ein PDF im Rahmen ist dort unlesbar.
+    seiten: Array.isArray(s?.seiten) ? s.seiten : []
   }
 })
 
@@ -43,7 +49,9 @@ const galerie = [
   '/images/dish-burger.jpg',
   '/images/restaurant-bar.jpg',
   '/images/restaurant-exterior-day.jpg',
-  '/images/dish-sandwich.jpg'
+  '/images/dish-sandwich.jpg',
+  '/images/dish-cake.jpg',
+  '/images/platter-2.jpg'
 ]
 </script>
 
@@ -104,19 +112,49 @@ const galerie = [
 
         <!-- Viewer-Karte mit Kopfleiste -->
         <div v-reveal class="rounded-2xl overflow-hidden border border-ink/15 bg-cream shadow-[0_30px_60px_-35px_rgba(33,28,21,.45)]">
-          <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-ink/10">
+          <!-- Am Handy untereinander, damit der Kartenname nicht auf "À…" zusammenschrumpft -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 px-5 py-3.5 border-b border-ink/10">
             <div class="flex items-center gap-2.5 min-w-0">
               <span class="h-2 w-2 rounded-full bg-terracotta shrink-0"></span>
-              <span class="font-display text-lg truncate">{{ current.label }}</span>
+              <span class="font-display text-lg">{{ current.label }}</span>
+              <span v-if="current.seiten.length > 1" class="text-muted text-sm shrink-0">
+                · {{ current.seiten.length }} Seiten
+              </span>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <a :href="current.src" target="_blank" rel="noopener" class="btn btn-ghost !py-1.5 !px-4 text-[0.82rem]">Neuer Tab ↗</a>
+              <a :href="current.src" target="_blank" rel="noopener" class="btn btn-ghost !py-1.5 !px-4 text-[0.82rem]">Als PDF ↗</a>
               <a :href="current.src" download class="btn btn-dark !py-1.5 !px-4 text-[0.82rem]">Herunterladen</a>
             </div>
           </div>
+          <!-- Ab Laptop: PDF direkt im Rahmen, dort funktioniert das zuverlässig -->
           <transition name="swap" mode="out-in">
-            <iframe :key="tab" :src="current.src" :title="current.label" class="w-full block bg-cream" style="height:78vh"></iframe>
+            <iframe :key="tab" :src="current.src" :title="current.label"
+                    class="hidden lg:block w-full bg-cream" style="height:78vh"></iframe>
           </transition>
+
+          <!-- Handy & Tablet: die Karte als Seitenbilder, normal scroll- und zoombar -->
+          <div class="lg:hidden">
+            <div v-if="current.seiten.length" class="bg-beige/40">
+              <img v-for="(bild, i) in current.seiten" :key="bild" :src="bild"
+                   :alt="`${current.label}, Seite ${i + 1} von ${current.seiten.length}`"
+                   loading="lazy" decoding="async"
+                   class="w-full h-auto block border-b border-ink/10 last:border-b-0" />
+              <p class="px-5 py-3 text-muted text-[0.82rem] text-center">
+                {{ current.seiten.length }} {{ current.seiten.length === 1 ? 'Seite' : 'Seiten' }} · zum Vergrößern aufziehen
+              </p>
+            </div>
+
+            <!-- Kein Seitenbild vorhanden: lieber ehrlich verweisen als eine
+                 unlesbare oder veraltete Karte einbetten. -->
+            <div v-else class="p-8 text-center">
+              <p class="font-display text-xl mb-1">{{ current.label }}</p>
+              <p class="text-muted text-sm mb-5">Die Karte öffnet sich als PDF.</p>
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a :href="current.src" target="_blank" rel="noopener" class="btn btn-primary">Karte öffnen ↗</a>
+                <a :href="current.src" download class="btn btn-ghost">Herunterladen</a>
+              </div>
+            </div>
+          </div>
         </div>
 
         <p class="mt-4 text-muted text-sm">

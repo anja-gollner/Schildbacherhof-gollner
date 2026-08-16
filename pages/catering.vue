@@ -1,5 +1,9 @@
 <script setup>
-useHead({ title: 'Catering — Schildbacherhof' })
+useSeo({
+  title: 'Catering für Hochzeit & Firmenfeier — Hartberg & Oststeiermark',
+  description: 'Fingerfood, Buffet, Mehrgang-Menü oder Grill — wir bringen den Schildbacherhof zu euch. Inklusive Service, Geschirr und Getränken auf Wunsch.',
+  bild: '/images/catering.jpg'
+})
 
 // Was wir anbieten
 const leistungen = [

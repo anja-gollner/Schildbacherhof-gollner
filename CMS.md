@@ -1,8 +1,12 @@
 # Schildbacherhof CMS
 
-Ein schlankes, selbstgehostetes CMS (PHP) zum Pflegen der **Events** und der
-**Speisekarten-PDFs** — ohne Code, hinter einem Passwort. Läuft auf eurem
-klassischen Webspace (Apache + PHP), genau wie die Website selbst.
+Ein schlankes, selbstgehostetes CMS (PHP) zum Pflegen der **Events**, der
+**Speisekarten-PDFs** und der **Feiertage/Urlaubszeiten** — ohne Code, hinter einem
+Passwort. Läuft auf eurem klassischen Webspace (Apache + PHP), genau wie die
+Website selbst.
+
+Vergangene Events und abgelaufene Ausnahmetage blendet die Website automatisch
+aus — nichts manuell löschen.
 
 Erreichbar unter: **`https://schildbacherhof.at/admin/`**
 
@@ -12,9 +16,28 @@ Erreichbar unter: **`https://schildbacherhof.at/admin/`**
   weil die Website die Events zur Laufzeit aus `content/events.json` lädt.
 - **Bilder** aus dem Bestand auswählen **oder** neue hochladen.
 - **PDFs** für *Wochenmenü* und *À la carte* hochladen (landen unter `/pdf/`).
+- **Feiertage & Urlaub** eintragen — siehe unten.
 - **Passwort ändern.**
 
-Vergangene Events blendet die Website automatisch aus — nichts manuell löschen.
+## Feiertage, Urlaub, geschlossene Gesellschaft
+
+Im Abschnitt **Öffnungszeiten → Feiertage & Urlaub** tragt ihr Tage ein, an denen
+der normale Wochenplan nicht gilt. Pro Eintrag:
+
+- **Von / Bis** — für einen einzelnen Tag beide gleich lassen
+- **Grund** — erscheint so auf der Website („Weihnachtsfeiertag", „Betriebsurlaub")
+- **ganztägig geschlossen** — Haken setzen, oder abwählen und stattdessen
+  abweichende Öffnungszeiten angeben (z. B. 11:00–14:00 bei Frühschluss)
+
+Danach **Ausnahmen speichern** — sofort live.
+
+Die Startseite berücksichtigt das an drei Stellen: die Anzeige „Jetzt geöffnet"
+springt auf „Gerade geschlossen" um und nennt den nächsten wirklich offenen Termin,
+die Wochentabelle zeigt statt der Uhrzeit den Grund, und über den Öffnungszeiten
+erscheint ein Kasten mit den nächsten Abweichungen.
+
+**Ohne Eintrag behauptet die Website am Feiertag „Jetzt geöffnet".** Sie kennt nur
+den festen Wochenplan. Vergangene Einträge verschwinden automatisch — nichts löschen.
 
 ## Speisekarte austauschen (der normale Weg)
 
@@ -49,8 +72,8 @@ bekommen — teils tagelang.
 ## Voraussetzungen am Server
 - **PHP** aktiviert (Standard bei klassischem Hosting wie world4you, easyname, Hetzner …).
 - **Schreibrechte** für PHP auf diese Ordner:
-  - `content/`  (Events + Backup)
-  - `pdf/`      (Speisekarten; wird bei Bedarf automatisch angelegt)
+  - `content/`  (Events, Feiertage/Urlaub + Backup)
+  - `pdf/`      (Speisekarten + Unterordner `pdf/seiten/`; werden bei Bedarf angelegt)
   - `images/`   (für hochgeladene Event-Bilder, Unterordner `images/events/`)
   - `api/`      (einmalig, um beim ersten Login die Zugangsdatei `auth.php` zu schreiben)
 
@@ -74,10 +97,12 @@ Sobald das CMS live genutzt wird, „leben" diese Dinge **nur am Server** und we
 vom CMS gepflegt. Beim erneuten Hochladen der Website **NICHT überschreiben**, sonst
 sind die Pflege-Änderungen weg:
 
-- `content/events.json`   ← die gepflegten Events
-- `pdf/`                  ← hochgeladene Speisekarten
-- `images/events/`        ← hochgeladene Event-Bilder
-- `api/auth.php`          ← der Login (existiert lokal gar nicht)
+- `content/events.json`    ← die gepflegten Events
+- `content/ausnahmen.json` ← Feiertage & Urlaub (existiert lokal gar nicht)
+- `pdf/`                   ← hochgeladene Speisekarten
+- `pdf/seiten/`            ← die daraus erzeugten Seitenbilder fürs Handy
+- `images/events/`         ← hochgeladene Event-Bilder
+- `api/auth.php`           ← der Login (existiert lokal gar nicht)
 
 **Praxis:** Beim Re-Upload in FileZilla diese Ordner/Dateien einfach abwählen bzw.
 „nicht überschreiben" wählen. Code-/Design-Änderungen (alles andere) kannst du
@@ -104,6 +129,7 @@ php -S localhost:8000 -t .output/public
 public/admin/   index.php · admin.css · app.js     ← Oberfläche
 public/api/     _bootstrap.php · session.php · login.php · logout.php
                 password.php · events.php · images.php · upload.php
-                menus.php  ← öffentlich, ohne Login: Änderungsdatum der Karten-PDFs
-                auth.php   ← wird beim ersten Login erzeugt (nicht im Repo)
+                menus.php     ← öffentlich: Änderungsdatum + Seitenbilder der Karten
+                ausnahmen.php ← öffentlich lesen, Speichern nur eingeloggt
+                auth.php      ← wird beim ersten Login erzeugt (nicht im Repo)
 ```

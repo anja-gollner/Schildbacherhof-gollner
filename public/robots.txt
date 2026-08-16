@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Verwaltungsbereich und Schnittstellen gehören nicht in den Index
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://schildbacherhof.at/sitemap.xml

@@ -1,5 +1,9 @@
 <script setup>
-useHead({ title: 'Foodtruck — Schildbacherhof' })
+useSeo({
+  title: 'Foodtruck mieten — Schildbacherhof Hartberg',
+  description: 'Unsere Küche on the road: Burger, Gegrilltes und herzhafte Klassiker, frisch vor Ort gekocht. Für Feste, Märkte, Firmenevents und Hochzeiten.',
+  bild: '/images/foodtruck.jpg'
+})
 
 // Menükarte fürs Scrollytelling
 const menu = [

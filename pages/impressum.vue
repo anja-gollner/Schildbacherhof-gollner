@@ -1,5 +1,8 @@
 <script setup>
-useHead({ title: 'Impressum — Schildbacherhof' })
+useSeo({
+  title: 'Impressum — Schildbacherhof',
+  description: 'Impressum und Offenlegung gemäß österreichischem Recht. Inhaberin Margit Maria Gollner, Schildbach 42, 8230 Hartberg.'
+})
 </script>
 <template>
   <div>
@@ -7,11 +10,15 @@ useHead({ title: 'Impressum — Schildbacherhof' })
     <section class="bg-cream py-16 md:py-24">
       <div class="container-x max-w-2xl space-y-8 leading-relaxed">
         <div>
-          <p class="font-display text-xl">Schildbacherhof</p>
-          <p class="text-muted">Margit Maria Gollner<br>Schildbach 42<br>8230 Hartberg U., Österreich</p>
+          <p class="font-display text-xl">{{ BETRIEB.name }}</p>
+          <address class="not-italic text-muted">
+            {{ BETRIEB.inhaberin }}<br>
+            {{ BETRIEB.adresse.strasse }}<br>
+            {{ BETRIEB.adresse.plz }} {{ BETRIEB.adresse.ortAmtlich }}, {{ BETRIEB.adresse.land }}
+          </address>
           <p class="text-muted mt-2">
-            E-Mail: <a href="mailto:anfragen@schildbacherhof.at" class="text-terracotta">anfragen@schildbacherhof.at</a><br>
-            Telefon: <a href="tel:+436643240892" class="text-terracotta">+43 664 3240892</a>
+            E-Mail: <a :href="'mailto:' + BETRIEB.email" class="text-terracotta">{{ BETRIEB.email }}</a><br>
+            Telefon: <a :href="'tel:' + BETRIEB.telefonRoh" class="text-terracotta">{{ BETRIEB.telefon }}</a>
           </p>
         </div>
         <div>
@@ -19,12 +26,21 @@ useHead({ title: 'Impressum — Schildbacherhof' })
           <p class="text-muted">
             Unternehmensgegenstand: Gasthof<br>
             Rechtsform: Einzelunternehmen<br>
-            UID-Nr.: ATU67261599<br>
-            Behörde gem. ECG: Bezirkshauptmannschaft Hartberg<br>
-            Aufsichts-/Gewerbebehörde: Bezirkshauptmannschaft Hartberg<br>
+            UID-Nr.: {{ BETRIEB.uid }}<br>
+            Behörde gem. ECG: {{ BETRIEB.behoerde }}<br>
+            Aufsichts-/Gewerbebehörde: {{ BETRIEB.behoerde }}<br>
             Berufsrecht/Gewerbeordnung: <a href="https://www.ris.bka.gv.at" target="_blank" rel="noopener" class="text-terracotta">www.ris.bka.gv.at</a><br>
             Berufsbezeichnung: reglementiertes Gewerbe · Tätigkeitsbereich: Gastronomie<br>
-            Inhaberin: Margit Maria Gollner
+            Inhaberin: {{ BETRIEB.inhaberin }}
+          </p>
+        </div>
+        <div>
+          <h2 class="font-display text-2xl text-terracotta mb-2">Online-Streitbeilegung</h2>
+          <p class="text-muted">
+            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung bereit:
+            <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" class="text-terracotta">ec.europa.eu/consumers/odr</a>.
+            Wir sind weder verpflichtet noch bereit, an einem Streitbeilegungsverfahren vor einer
+            Verbraucherschlichtungsstelle teilzunehmen.
           </p>
         </div>
         <div>

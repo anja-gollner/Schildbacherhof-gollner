@@ -1,5 +1,9 @@
 <script setup>
-useHead({ title: 'Events & Menüs — Schildbacherhof' })
+useSeo({
+  title: 'Events, Menüabende & Feiern — Schildbacherhof',
+  description: 'Candlelight Dinner, Business Dinner, Geburtstagstafeln und Firmenfeiern richten wir ganzjährig aus. Dazu unsere saisonalen Themenabende in Hartberg.',
+  bild: '/images/marquee/marquee-07.jpg'
+})
 const { upcoming, loaded, load, formatDate } = useEvents()
 onMounted(load)
 
@@ -19,7 +23,7 @@ const formate = [
     <PageHeader
       eyebrow="Events & Menüs"
       title="Besondere Abende."
-      image="/images/marquee/marquee-02.jpg"
+      image="/images/marquee/marquee-07.jpg"
       text="Candlelight Dinner, Business Dinner und festliche Tafeln richten wir jederzeit für euch aus — dazu kommen unsere saisonalen Themenabende. Reservierung empfohlen, die Plätze sind begrenzt."
     />
 

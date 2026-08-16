@@ -1,5 +1,8 @@
 <script setup>
-useHead({ title: 'Schildbacherhof — Restaurant, Wirtshaus & mehr in Hartberg' })
+useSeo({
+  title: 'Schildbacherhof — Restaurant & Wirtshaus in Hartberg',
+  description: 'Restaurant und Wirtshaus in Hartberg: mittags wie abends dieselbe regionale Küche. Dazu Gästezimmer, Catering, Foodtruck und Themenabende. Familie Gollner seit 1967.'
+})
 
 // Die drei Köpfe hinter Kapitel 2 — gekippt, überlappend, editorial
 const team = [
@@ -8,48 +11,54 @@ const team = [
   { name: 'Anja Gollner',    role: 'Brand & Digital', img: '/images/family/anja.jpg',     pos: 'center bottom', cls: 'w-32 sm:w-44 mt-16 rotate-[-3deg] z-10 -ml-5 sm:-ml-9' }
 ]
 
-// Öffnungszeiten (Minuten ab Mitternacht); leere slots = Ruhetag
-const tage = [
-  { lang: 'Montag',     dow: 1, slots: [[660, 900], [1020, 1290]] },
-  { lang: 'Dienstag',   dow: 2, slots: [] },
-  { lang: 'Mittwoch',   dow: 3, slots: [[660, 900], [1020, 1290]] },
-  { lang: 'Donnerstag', dow: 4, slots: [[660, 900], [1020, 1290]] },
-  { lang: 'Freitag',    dow: 5, slots: [[660, 900], [1020, 1290]] },
-  { lang: 'Samstag',    dow: 6, slots: [[660, 900], [1020, 1290]] },
-  { lang: 'Sonntag',    dow: 0, slots: [[660, 960]] }
-]
+// Strukturierte Daten für Google (Adresse, Öffnungszeiten, Telefon, Profile)
+useRestaurantSchema()
 
-const fmtTime = (m) => { const h = Math.floor(m / 60), mm = m % 60; return mm ? `${h}:${String(mm).padStart(2, '0')}` : `${h}` }
-const fmt = (t) => t.slots.length ? t.slots.map(s => `${fmtTime(s[0])}–${fmtTime(s[1])}`).join(' · ') : 'Ruhetag'
-const byDow = (d) => tage.find(t => t.dow === d)
+// Öffnungszeiten kommen aus useBetrieb, der Status inkl. Feiertagen/Urlaub
+// aus useOeffnung. Beides steht nicht mehr hier im Code.
+const tage = OEFFNUNGSZEITEN
+const fmt = (t) => tagText(t)
 
-// Live-Status (nur clientseitig, um Hydration-Mismatch zu vermeiden)
+const { ladeAusnahmen, status, ausnahmeFuer, kommendeAusnahmen } = useOeffnung()
+
+// Live-Status nur clientseitig berechnen, sonst friert der Stand des Builds ein.
 const mounted = ref(false)
 const todayDow = ref(-1)
 const openNow = ref(false)
 const statusSub = ref('')
+const statusGrund = ref('')
 
 function computeStatus() {
-  const now = new Date()
-  const dow = now.getDay()
-  const mins = now.getHours() * 60 + now.getMinutes()
-  todayDow.value = dow
-  const cur = byDow(dow).slots.find(s => mins >= s[0] && mins < s[1])
-  if (cur) { openNow.value = true; statusSub.value = `bis ${fmtTime(cur[1])} Uhr`; return }
-  openNow.value = false
-  for (let off = 0; off <= 7; off++) {
-    const day = byDow((dow + off) % 7)
-    if (!day.slots.length) continue
-    const slot = off === 0 ? day.slots.find(s => s[0] > mins) : day.slots[0]
-    if (!slot) continue
-    const when = off === 0 ? 'um' : off === 1 ? 'morgen um' : `${day.lang} um`
-    statusSub.value = `öffnet ${when} ${fmtTime(slot[0])} Uhr`
-    break
-  }
+  const jetzt = new Date()
+  todayDow.value = jetzt.getDay()
+  const s = status(jetzt)
+  openNow.value = s.offen
+  statusSub.value = s.zusatz
+  statusGrund.value = s.grund
+}
+
+// Ist für einen Wochentag dieser Woche eine Ausnahme hinterlegt?
+function ausnahmeAmTag(dow) {
+  const jetzt = new Date()
+  const diff = (dow - jetzt.getDay() + 7) % 7
+  const tag = new Date(jetzt)
+  tag.setDate(jetzt.getDate() + diff)
+  return ausnahmeFuer(tag)
+}
+
+const datumKurz = (iso) => {
+  const d = new Date(iso + 'T12:00')
+  return isNaN(d) ? iso : d.toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit' })
 }
 
 let statusTimer
-onMounted(() => { computeStatus(); mounted.value = true; statusTimer = setInterval(computeStatus, 60000) })
+onMounted(async () => {
+  computeStatus()
+  mounted.value = true
+  await ladeAusnahmen()
+  computeStatus() // nach dem Laden neu rechnen — jetzt mit Ausnahmen
+  statusTimer = setInterval(computeStatus, 60000)
+})
 onUnmounted(() => clearInterval(statusTimer))
 </script>
 
@@ -130,6 +139,24 @@ onUnmounted(() => clearInterval(statusTimer))
             </span>
           </div>
 
+          <!-- Hinweis auf Feiertage / Urlaub, gepflegt im CMS -->
+          <div v-if="mounted && kommendeAusnahmen.length" v-reveal:100
+               class="mt-5 rounded-xl border border-terracotta/30 bg-terracotta/[0.07] px-4 py-3">
+            <p class="eyebrow text-terracotta mb-1.5">Abweichende Zeiten</p>
+            <ul class="text-sm text-cream/80 space-y-1">
+              <li v-for="a in kommendeAusnahmen" :key="a.von" class="flex gap-2">
+                <span class="tabular-nums text-cream/55 shrink-0">
+                  {{ datumKurz(a.von) }}<template v-if="a.bis && a.bis !== a.von">–{{ datumKurz(a.bis) }}</template>
+                </span>
+                <span>
+                  {{ a.text || (a.zu ? 'geschlossen' : 'geänderte Zeiten') }}
+                  <template v-if="!a.zu && a.von_zeit"> · {{ a.von_zeit }}–{{ a.bis_zeit }}</template>
+                  <template v-else-if="a.zu"> · geschlossen</template>
+                </span>
+              </li>
+            </ul>
+          </div>
+
           <p v-reveal:120 class="mt-6 text-cream/70 leading-relaxed max-w-md">
             Mittags und abends geöffnet, Dienstag ist Ruhetag. Für größere Runden
             und am Wochenende empfehlen wir eine Reservierung.
@@ -147,7 +174,14 @@ onUnmounted(() => clearInterval(statusTimer))
               <span v-if="mounted && t.dow === todayDow"
                     class="eyebrow text-terracotta text-[0.58rem] border border-terracotta/40 rounded-full px-2 py-0.5 leading-none">Heute</span>
             </div>
-            <span class="tabular-nums text-sm sm:text-base" :class="!t.slots.length ? 'text-terracotta font-display' : 'text-cream/85'">{{ fmt(t) }}</span>
+            <!-- Liegt für diesen Tag eine Ausnahme vor, gilt sie statt des Wochenplans -->
+            <span v-if="mounted && ausnahmeAmTag(t.dow)"
+                  class="tabular-nums text-sm sm:text-base text-terracotta font-display text-right">
+              {{ ausnahmeAmTag(t.dow).zu
+                   ? (ausnahmeAmTag(t.dow).text || 'geschlossen')
+                   : ausnahmeAmTag(t.dow).von_zeit + '–' + ausnahmeAmTag(t.dow).bis_zeit }}
+            </span>
+            <span v-else class="tabular-nums text-sm sm:text-base" :class="!t.slots.length ? 'text-terracotta font-display' : 'text-cream/85'">{{ fmt(t) }}</span>
           </div>
         </div>
       </div>

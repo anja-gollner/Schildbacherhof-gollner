@@ -1,5 +1,9 @@
 <script setup>
-useHead({ title: 'Gästezimmer — Schildbacherhof' })
+useSeo({
+  title: 'Gästezimmer in Hartberg — Schildbacherhof',
+  description: 'Sechs Gästezimmer direkt an der B54, Parkplatz vor der Tür, Restaurant im Haus. 75 € pro Person inklusive Frühstück.',
+  bild: '/images/restaurant-exterior-day.jpg'
+})
 
 const vorteile = [
   { title: 'Verkehrsgünstig an der B54', text: 'Direkt an der Bundesstraße — leicht zu finden und bestens angebunden Richtung Hartberg und A2.' },
@@ -26,8 +30,25 @@ const vorteile = [
         <div v-reveal:100.right>
           <p class="eyebrow text-sage mb-3">Ankommen & bleiben</p>
           <h2 class="font-display text-[clamp(1.8rem,4vw,3rem)] leading-tight mb-4">Mitten im Geschehen — nicht abgelegen.</h2>
-          <p class="text-muted leading-relaxed mb-4">Unsere Zimmer sind perfekt für alle, die es praktisch mögen: gut erreichbar, direkt am Haus geparkt, und mit dem Restaurant nur eine Treppe entfernt.</p>
-          <p class="text-muted leading-relaxed mb-6">Schreibt uns euren Wunschzeitraum und die Personenzahl — wir prüfen die Verfügbarkeit und melden uns mit einem Angebot.</p>
+          <p class="text-muted leading-relaxed mb-4">Unsere sechs Gästezimmer sind perfekt für alle, die es praktisch mögen: gut erreichbar, direkt am Haus geparkt, und mit dem Restaurant nur eine Treppe entfernt.</p>
+
+          <!-- Preis und Zimmerzahl auf einen Blick — die zwei Angaben, nach denen
+               zuerst gesucht wird, bevor überhaupt jemand anfragt. -->
+          <dl class="grid grid-cols-2 gap-4 my-7 max-w-sm">
+            <div class="rounded-xl bg-beige border border-ink/10 px-4 py-3">
+              <dt class="eyebrow text-sage mb-1">Zimmer</dt>
+              <dd class="font-display text-2xl m-0">6</dd>
+            </div>
+            <div class="rounded-xl bg-beige border border-ink/10 px-4 py-3">
+              <dt class="eyebrow text-sage mb-1">Pro Person</dt>
+              <dd class="font-display text-2xl m-0">75&nbsp;€</dd>
+            </div>
+          </dl>
+          <p class="text-muted leading-relaxed mb-6">
+            <strong class="text-ink">75 € pro Person inklusive Frühstück.</strong>
+            Schreibt uns euren Wunschzeitraum und die Personenzahl — wir prüfen die
+            Verfügbarkeit und melden uns mit einem Angebot.
+          </p>
           <NuxtLink to="/kontakt" class="btn btn-primary">Zimmer anfragen</NuxtLink>
         </div>
       </div>

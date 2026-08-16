@@ -3,7 +3,7 @@
   const app = document.getElementById('app');
   const toastEl = document.getElementById('toast');
 
-  const state = { csrf: '', events: [], images: [], editIndex: null };
+  const state = { csrf: '', events: [], images: [], ausnahmen: [], editIndex: null };
 
   // ── Helpers ─────────────────────────────────────────────
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
@@ -136,24 +136,108 @@
 
         <section>
           <div class="section-title"><div><p class="eyebrow">Speisekarten</p><h2>PDFs hochladen</h2></div></div>
+          <p class="muted" style="margin:-.4rem 0 1.2rem;font-size:.9rem">
+            Der Dateiname ist egal – die Datei wird beim Hochladen automatisch richtig abgelegt.
+          </p>
           <div class="row">
             ${pdfCard('Wochenmenü', 'wochenmenue.pdf')}
             ${pdfCard('À la carte', 'a-la-carte.pdf')}
           </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section>
+          <div class="section-title">
+            <div><p class="eyebrow">Öffnungszeiten</p><h2>Feiertage & Urlaub</h2></div>
+            <button class="btn btn-primary" id="addAus">+ Neuer Eintrag</button>
+          </div>
+          <p class="muted" style="margin:-.4rem 0 1.2rem;font-size:.9rem">
+            Hier eingetragene Tage überschreiben den normalen Wochenplan. Ohne Eintrag zeigt
+            die Website am Feiertag „Jetzt geöffnet“. Vergangenes verschwindet von selbst.
+          </p>
+          <div id="ausListe"></div>
         </section>
       </div>`;
 
     document.getElementById('logout').onclick = async () => { await api('logout.php', { method: 'POST' }); renderLogin(); };
     document.getElementById('pw').onclick = renderPasswordModal;
     document.getElementById('add').onclick = () => openEditor(null);
+    document.getElementById('addAus').onclick = () => addAusnahme();
     document.querySelectorAll('[data-pdf]').forEach((el) => el.addEventListener('submit', onPdfUpload));
 
     try {
-      const [ev, im] = await Promise.all([api('events.php'), api('images.php')]);
+      const [ev, im, au] = await Promise.all([api('events.php'), api('images.php'), api('ausnahmen.php')]);
       state.events = ev.events || [];
       state.images = im.images || [];
+      state.ausnahmen = au.ausnahmen || [];
     } catch (e) { toast(e.message, true); }
     renderList();
+    renderAusnahmen();
+  }
+
+  // ── Feiertage & Urlaub ──────────────────────────────────
+  const heuteISO = () => new Date().toISOString().slice(0, 10);
+
+  function addAusnahme() {
+    state.ausnahmen.push({ von: heuteISO(), bis: heuteISO(), text: '', zu: true, von_zeit: '', bis_zeit: '' });
+    renderAusnahmen();
+  }
+
+  function renderAusnahmen() {
+    const el = document.getElementById('ausListe');
+    if (!el) return;
+    if (!state.ausnahmen.length) {
+      el.innerHTML = `<div class="empty">Keine Ausnahmen eingetragen – es gilt der normale Wochenplan.</div>`;
+      return;
+    }
+    el.innerHTML = state.ausnahmen.map((a, i) => `
+      <div class="card" style="margin-bottom:.7rem">
+        <div class="row">
+          <div class="field"><label>Von</label>
+            <input type="date" data-a="von" data-i="${i}" value="${esc(a.von)}" /></div>
+          <div class="field"><label>Bis <span class="hint">(gleicher Tag = ein Tag)</span></label>
+            <input type="date" data-a="bis" data-i="${i}" value="${esc(a.bis || a.von)}" /></div>
+        </div>
+        <div class="field"><label>Grund <span class="hint">(erscheint auf der Website)</span></label>
+          <input type="text" data-a="text" data-i="${i}" value="${esc(a.text)}"
+                 placeholder="z. B. Weihnachtsfeiertag, Betriebsurlaub" /></div>
+        <div class="field">
+          <label><input type="checkbox" data-a="zu" data-i="${i}" ${a.zu ? 'checked' : ''} /> ganztägig geschlossen</label>
+        </div>
+        <div class="row" ${a.zu ? 'hidden' : ''} data-zeiten="${i}">
+          <div class="field"><label>Geöffnet von</label>
+            <input type="time" data-a="von_zeit" data-i="${i}" value="${esc(a.von_zeit)}" /></div>
+          <div class="field"><label>bis</label>
+            <input type="time" data-a="bis_zeit" data-i="${i}" value="${esc(a.bis_zeit)}" /></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" data-del-a="${i}">Löschen</button>
+      </div>`).join('') +
+      `<button class="btn btn-primary" id="saveAus">Ausnahmen speichern</button>`;
+
+    el.querySelectorAll('[data-a]').forEach((inp) => {
+      inp.addEventListener('input', () => {
+        const i = +inp.dataset.i, feld = inp.dataset.a;
+        state.ausnahmen[i][feld] = inp.type === 'checkbox' ? inp.checked : inp.value;
+        if (feld === 'zu') {
+          const zeilen = el.querySelector(`[data-zeiten="${i}"]`);
+          if (zeilen) zeilen.hidden = inp.checked;
+        }
+      });
+    });
+    el.querySelectorAll('[data-del-a]').forEach((b) => {
+      b.onclick = () => { state.ausnahmen.splice(+b.dataset.delA, 1); renderAusnahmen(); };
+    });
+    el.querySelector('#saveAus').onclick = saveAusnahmen;
+  }
+
+  async function saveAusnahmen() {
+    try {
+      const res = await api('ausnahmen.php', { method: 'POST', body: { ausnahmen: state.ausnahmen } });
+      state.ausnahmen = res.ausnahmen || [];
+      renderAusnahmen();
+      toast('Ausnahmen gespeichert');
+    } catch (e) { toast(e.message, true); }
   }
 
   function pdfCard(label, target) {
