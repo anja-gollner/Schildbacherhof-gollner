@@ -89,7 +89,7 @@
   function renderLogin() {
     app.className = '';
     app.innerHTML = `<div class="auth"><form class="card" id="f">
-      <p class="eyebrow">gollner² · Schildbacherhof</p>
+      <p class="eyebrow">Der Schildbacherhof</p>
       <h2>CMS-Login</h2>
       <div class="field" style="margin-top:1rem">
         <label>Passwort</label>
@@ -113,7 +113,7 @@
     app.className = '';
     app.innerHTML = `
       <div class="topbar">
-        <div class="brand">gollner² <small>CMS</small></div>
+        <div class="brand">Schildbacherhof <small>CMS</small></div>
         <div class="actions">
           <a class="btn btn-ghost btn-sm" href="/events" target="_blank">Events ansehen ↗</a>
           <button class="btn btn-ghost btn-sm" id="pw">Passwort ändern</button>
@@ -158,6 +158,17 @@
           </p>
           <div id="ausListe"></div>
         </section>
+
+        <div class="divider"></div>
+
+        <section>
+          <div class="section-title"><div><p class="eyebrow">Server</p><h2>Funktioniert hier alles?</h2></div></div>
+          <p class="muted" style="margin:-.4rem 0 1.2rem;font-size:.9rem">
+            Prüft, ob dieser Webhoster alles kann, was die Website braucht. Einmal nach
+            dem Umzug ansehen – danach nur noch, wenn etwas klemmt.
+          </p>
+          <div id="statusListe"><p class="muted">wird geprüft …</p></div>
+        </section>
       </div>`;
 
     document.getElementById('logout').onclick = async () => { await api('logout.php', { method: 'POST' }); renderLogin(); };
@@ -174,6 +185,32 @@
     } catch (e) { toast(e.message, true); }
     renderList();
     renderAusnahmen();
+    renderStatus();
+  }
+
+  // ── Server-Diagnose ─────────────────────────────────────
+  async function renderStatus() {
+    const el = document.getElementById('statusListe');
+    if (!el) return;
+    try {
+      const d = await api('status.php');
+      el.innerHTML = `<div class="card">${d.pruefungen.map((p) => `
+        <div style="display:flex;gap:.7rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px solid rgba(0,0,0,.07)">
+          <span style="font-size:1.05rem;line-height:1.4">${p.ok ? '✅' : '⚠️'}</span>
+          <div style="flex:1;min-width:0">
+            <div><strong>${esc(p.name)}</strong> — <span class="muted">${esc(p.wert)}</span></div>
+            ${p.ok ? '' : `<div class="hint" style="margin-top:.15rem">${esc(p.hilfe)}</div>`}
+          </div>
+        </div>`).join('')}
+        <p class="muted" style="margin-top:.8rem;font-size:.9rem">
+          ${d.alles_ok
+            ? 'Alles in Ordnung — der Server kann alles, was gebraucht wird.'
+            : 'Die markierten Punkte bitte beim Hoster klären. Die Website läuft trotzdem, einzelne Funktionen aber eingeschränkt.'}
+        </p>
+      </div>`;
+    } catch (e) {
+      el.innerHTML = `<p class="muted">Diagnose nicht möglich: ${esc(e.message)}</p>`;
+    }
   }
 
   // ── Feiertage & Urlaub ──────────────────────────────────
@@ -203,7 +240,7 @@
           <input type="text" data-a="text" data-i="${i}" value="${esc(a.text)}"
                  placeholder="z. B. Weihnachtsfeiertag, Betriebsurlaub" /></div>
         <div class="field">
-          <label><input type="checkbox" data-a="zu" data-i="${i}" ${a.zu ? 'checked' : ''} /> ganztägig geschlossen</label>
+          <label class="inline"><input type="checkbox" data-a="zu" data-i="${i}" ${a.zu ? 'checked' : ''} /> ganztägig geschlossen</label>
         </div>
         <div class="row" ${a.zu ? 'hidden' : ''} data-zeiten="${i}">
           <div class="field"><label>Geöffnet von</label>

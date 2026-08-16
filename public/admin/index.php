@@ -10,9 +10,8 @@ header('Cache-Control: no-store');
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>CMS · Schildbacherhof</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Schriften lokal, wie auf der Website auch — keine Verbindung zu Google -->
+  <link rel="stylesheet" href="/fonts/fonts.css" />
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
