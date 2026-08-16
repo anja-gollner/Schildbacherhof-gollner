@@ -42,16 +42,10 @@ export function useRestaurantSchema() {
   const TAGE = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
 
-  const zeiten = OEFFNUNGSZEITEN.flatMap(t =>
-    t.slots.map(s => ({
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: TAGE[t.dow],
-      opens: hhmm(s[0]),
-      closes: hhmm(s[1])
-    }))
-  )
-
-  const schema = {
+  // Als computed: ändert jemand im CMS Telefonnummer, Adresse oder
+  // Öffnungszeiten, stimmt sonst der Datenblock für Google bis zum nächsten
+  // Hochladen nicht mehr mit dem überein, was auf der Seite steht.
+  const schema = computed(() => ({
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
     name: BETRIEB.name,
@@ -71,15 +65,22 @@ export function useRestaurantSchema() {
       addressLocality: BETRIEB.adresse.ort,
       addressCountry: BETRIEB.adresse.landCode
     },
-    openingHoursSpecification: zeiten,
+    openingHoursSpecification: OEFFNUNGSZEITEN.flatMap(t =>
+      t.slots.map(s => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: TAGE[t.dow],
+        opens: hhmm(s[0]),
+        closes: hhmm(s[1])
+      }))
+    ),
     hasMenu: BETRIEB.domain + '/restaurant',
     sameAs: BETRIEB.social.map(s => s.url),
     founder: { '@type': 'Person', name: BETRIEB.inhaberin },
     foundingDate: String(BETRIEB.seit)
-  }
+  }))
 
   useHead({
-    script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(schema) }]
+    script: [{ type: 'application/ld+json', innerHTML: computed(() => JSON.stringify(schema.value)) }]
   })
 
   return { zeitText }

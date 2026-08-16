@@ -1,6 +1,8 @@
 <script setup>
 const year = new Date().getFullYear()
-const zeiten = zeitenKompakt()
+// Als computed, damit die im CMS geänderten Öffnungszeiten auch hier ankommen —
+// als einmaliger Aufruf bliebe der Stand vom Bauen stehen.
+const zeiten = computed(() => zeitenKompakt())
 </script>
 
 <template>
@@ -28,12 +30,15 @@ const zeiten = zeitenKompakt()
       <div>
         <h2 class="eyebrow text-sage mb-4">Kontakt</h2>
         <address class="not-italic text-cream/80 leading-relaxed">
-          {{ BETRIEB.adresse.strasse }}<br>{{ BETRIEB.adresse.plz }} {{ BETRIEB.adresse.ort }}<br>
-          <a :href="'tel:' + BETRIEB.telefonRoh" class="hover:text-terracotta">{{ BETRIEB.telefon }}</a><br>
-          <a :href="'mailto:' + BETRIEB.email" class="hover:text-terracotta">{{ BETRIEB.email }}</a>
+          {{ BETRIEB.adresse.strasse }}<br>{{ BETRIEB.adresse.plz }} {{ BETRIEB.adresse.ort }}
+          <!-- Telefon und E-Mail als eigene Zeilen mit Polsterung statt als
+               Textzeilen: am Handy sind das die wichtigsten Tippziele, und mit
+               reiner Zeilenhöhe wären sie nur 20px hoch — zu wenig zum Treffen. -->
+          <a :href="'tel:' + BETRIEB.telefonRoh" class="block py-1.5 hover:text-terracotta">{{ BETRIEB.telefon }}</a>
+          <a :href="'mailto:' + BETRIEB.email" class="block pb-1.5 hover:text-terracotta">{{ BETRIEB.email }}</a>
         </address>
         <a :href="BETRIEB.route" target="_blank" rel="noopener"
-           class="mt-3 inline-flex items-center gap-1.5 text-sm text-sage hover:text-terracotta transition-colors">
+           class="mt-1 inline-flex items-center gap-1.5 py-1.5 text-sm text-sage hover:text-terracotta transition-colors">
           Route planen <span aria-hidden="true">→</span>
         </a>
       </div>
@@ -58,9 +63,9 @@ const zeiten = zeitenKompakt()
 
     <div class="container-x py-6 border-t border-cream/15 flex flex-wrap justify-between gap-3 text-cream/50 text-[0.8rem]">
       <span>© {{ year }} {{ BETRIEB.name }} · Familie Gollner</span>
-      <span class="flex gap-5">
-        <NuxtLink to="/impressum" class="hover:text-terracotta">Impressum</NuxtLink>
-        <NuxtLink to="/datenschutz" class="hover:text-terracotta">Datenschutz</NuxtLink>
+      <span class="flex gap-5 -my-1.5">
+        <NuxtLink to="/impressum" class="py-1.5 hover:text-terracotta">Impressum</NuxtLink>
+        <NuxtLink to="/datenschutz" class="py-1.5 hover:text-terracotta">Datenschutz</NuxtLink>
       </span>
     </div>
   </footer>

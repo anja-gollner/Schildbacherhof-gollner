@@ -25,13 +25,25 @@ npm run generate
 Erzeugt den Ordner **`.output/public/`** — dessen **Inhalt** lädst du per FileZilla in den
 Webspace-Stammordner. (Klassisches Hosting reicht, kein Node nötig.)
 
+Dabei ist **`.htaccess`** mit dabei und muss mit hochgeladen werden — FileZilla
+blendet Dateien mit Punkt am Anfang standardmäßig aus („Server → Versteckte Dateien
+anzeigen" einschalten). Sie erzwingt HTTPS, entfernt `www.`, liefert die eigene
+404-Seite aus und schaltet Komprimierung sowie Caching ein.
+
 ## Marken-Palette (tailwind.config.js)
 cream `#F4EFE3` · beige `#E6DBC4` · terracotta `#C75A0B` · sage `#7D8169` · ink `#211C15`
 Fonts: Fraunces (Display) + Inter (Text).
 
 ## Inhalte pflegen
-- **CMS (empfohlen):** `https://schildbacherhof.at/admin/` — Events anlegen/bearbeiten,
-  Bilder & Speisekarten-PDFs hochladen, ohne Code. Details in **[CMS.md](CMS.md)**.
+- **CMS (empfohlen):** `https://schildbacherhof.at/admin/` — Basisdaten, Events,
+  Bilder & Speisekarten-PDFs, ohne Code. Details in **[CMS.md](CMS.md)**.
+- **Basisdaten** (Telefon, E-Mail, Adresse, Öffnungszeiten, Social-Profile) ändert
+  man im CMS unter *Basisdaten* — sofort live, ohne neues Hochladen. Technisch:
+  `composables/useBetrieb.ts` ist `reactive`, deshalb ziehen alle Stellen im Code
+  automatisch nach; `plugins/stammdaten.client.ts` holt die gespeicherten Werte,
+  und `nuxt.config.ts` schreibt beim Bauen `public/api/vorgabe.json` mit den
+  Ausgangswerten. So steht die Telefonnummer weiterhin an genau **einer** Stelle
+  im Code.
 - **Wochenmenü / Speisekarten:** über das CMS hochladen — der Dateiname der
   hochgeladenen Datei ist egal, das CMS legt sie richtig ab. Die Restaurant-Seite
   zeigt automatisch „Stand: <Datum>" und umgeht den Browser-Cache. Details unter

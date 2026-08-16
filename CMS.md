@@ -1,9 +1,9 @@
 # Schildbacherhof CMS
 
-Ein schlankes, selbstgehostetes CMS (PHP) zum Pflegen der **Events**, der
-**Speisekarten-PDFs** und der **Feiertage/Urlaubszeiten** — ohne Code, hinter einem
-Passwort. Läuft auf eurem klassischen Webspace (Apache + PHP), genau wie die
-Website selbst.
+Ein schlankes, selbstgehostetes CMS (PHP) zum Pflegen der **Basisdaten**, der
+**Events**, der **Speisekarten-PDFs** und der **Feiertage/Urlaubszeiten** — ohne
+Code, hinter einem Passwort. Läuft auf eurem klassischen Webspace (Apache + PHP),
+genau wie die Website selbst.
 
 Vergangene Events und abgelaufene Ausnahmetage blendet die Website automatisch
 aus — nichts manuell löschen.
@@ -11,6 +11,8 @@ aus — nichts manuell löschen.
 Erreichbar unter: **`https://schildbacherhof.at/admin/`**
 
 ## Was das CMS kann
+- **Basisdaten** ändern: Telefon, E-Mail, Adresse, Öffnungszeiten, Instagram- und
+  Facebook-Adresse — siehe gleich unten.
 - **Events** anlegen, bearbeiten, löschen (Titel, Datum/Uhrzeit, Untertitel,
   Beschreibung, Preis, Bild). Änderungen sind **sofort live** — kein neuer Upload nötig,
   weil die Website die Events zur Laufzeit aus `content/events.json` lädt.
@@ -18,6 +20,55 @@ Erreichbar unter: **`https://schildbacherhof.at/admin/`**
 - **PDFs** für *Wochenmenü* und *À la carte* hochladen (landen unter `/pdf/`).
 - **Feiertage & Urlaub** eintragen — siehe unten.
 - **Passwort ändern.**
+
+## Basisdaten ändern
+
+Im Abschnitt **Basisdaten** stehen die Angaben, die an vielen Stellen gleichzeitig
+auftauchen. Ändert man hier die Telefonnummer, ändert sie sich überall: in der
+Fußzeile, auf der Kontaktseite, im Impressum, in der Datenschutzerklärung und in
+den unsichtbaren Daten, aus denen Google die Trefferanzeige baut.
+
+| Feld | wirkt sich aus auf |
+|---|---|
+| Telefon | die angezeigte Nummer auf allen Seiten |
+| Telefon zum Anwählen | was passiert, wenn man am Handy draufdrückt |
+| E-Mail | alle `mailto:`-Links und das Impressum |
+| Straße / PLZ / Ort | Fußzeile, Impressum, Datenschutz **und die Kartenlinks** |
+| Instagram / Facebook | die Knöpfe in der Fußzeile |
+| Öffnungszeiten | Startseite, Kontaktseite, Fußzeile und die Anzeige „Jetzt geöffnet" |
+
+Danach **Basisdaten speichern** — sofort live.
+
+Drei Dinge, die oft gefragt werden:
+
+- **Die Kartenlinks muss man nicht extra pflegen.** „Route planen" und „Auf der
+  Karte" werden aus Hausname und Adresse zusammengebaut. Ändert sich die Adresse,
+  ändern sich die Links automatisch mit.
+- **Ein Feld leeren setzt es zurück.** Gespeichert wird nur, was tatsächlich
+  drinsteht; ist ein Feld leer, gilt wieder der Wert, der beim Bauen der Website
+  eingetragen war. Man kann sich also nicht dauerhaft „verstellen".
+- **Öffnungszeiten sind der Dauerplan, nicht der Einzelfall.** Wer nur am 24.12.
+  zusperrt, trägt das weiter unten unter *Feiertage & Urlaub* ein — dort
+  überschreibt es diesen Plan für die betroffenen Tage. Der Wochenplan bleibt
+  dabei unangetastet.
+
+Pro Tag gibt es zwei Zeitfenster („Mittag" und „Abend"). Wer durchgehend geöffnet
+hat, füllt nur „Mittag" aus und lässt „Abend" leer. Ein angehakter **Ruhetag**
+bedeutet: an diesem Wochentag ist grundsätzlich geschlossen.
+
+### Warum das ohne neues Hochladen funktioniert
+
+Die Website ist eine statische Seite: sie wird einmal gebaut und dann als fertige
+Dateien hochgeladen. Am Webspace läuft kein Node, es kann also nichts neu gebaut
+werden, wenn ihr etwas ändert.
+
+Deshalb holt die Seite die Basisdaten beim Laden im Browser vom Server nach und
+setzt sie ein. Für Besucher ist das unsichtbar. Nur der reine Quelltext trägt bis
+zum nächsten Hochladen noch den alten Stand — für Gäste ohne Bedeutung.
+
+> Wenn ein Wert dauerhaft geändert bleiben soll, sagt trotzdem einmal Bescheid:
+> dann wandert er zusätzlich in `composables/useBetrieb.ts` und ist danach auch
+> ohne den Umweg über den Server der neue Ausgangswert.
 
 ## Feiertage, Urlaub, geschlossene Gesellschaft
 
@@ -97,16 +148,22 @@ Sobald das CMS live genutzt wird, „leben" diese Dinge **nur am Server** und we
 vom CMS gepflegt. Beim erneuten Hochladen der Website **NICHT überschreiben**, sonst
 sind die Pflege-Änderungen weg:
 
-- `content/events.json`    ← die gepflegten Events
-- `content/ausnahmen.json` ← Feiertage & Urlaub (existiert lokal gar nicht)
-- `pdf/`                   ← hochgeladene Speisekarten
-- `pdf/seiten/`            ← die daraus erzeugten Seitenbilder fürs Handy
-- `images/events/`         ← hochgeladene Event-Bilder
-- `api/auth.php`           ← der Login (existiert lokal gar nicht)
+- `content/events.json`     ← die gepflegten Events
+- `content/ausnahmen.json`  ← Feiertage & Urlaub (existiert lokal gar nicht)
+- `content/stammdaten.json` ← die im CMS geänderten Basisdaten (existiert lokal gar nicht)
+- `pdf/`                    ← hochgeladene Speisekarten
+- `pdf/seiten/`             ← die daraus erzeugten Seitenbilder fürs Handy
+- `images/events/`          ← hochgeladene Event-Bilder
+- `api/auth.php`            ← der Login (existiert lokal gar nicht)
 
 **Praxis:** Beim Re-Upload in FileZilla diese Ordner/Dateien einfach abwählen bzw.
 „nicht überschreiben" wählen. Code-/Design-Änderungen (alles andere) kannst du
 normal drüberspielen.
+
+Eine Datei müsst ihr dagegen unbedingt **mit** hochladen: **`.htaccess`**.
+FileZilla blendet Dateien mit einem Punkt am Anfang standardmäßig aus — unter
+„Server → Versteckte Dateien anzeigen" einschalten. Ohne sie fehlen HTTPS-Zwang,
+die eigene Fehlerseite und die Komprimierung.
 
 ## Sicherheit
 - Passwort wird nur als **bcrypt-Hash** in `api/auth.php` abgelegt; diese Datei wird
@@ -128,8 +185,10 @@ php -S localhost:8000 -t .output/public
 ```
 public/admin/   index.php · admin.css · app.js     ← Oberfläche
 public/api/     _bootstrap.php · session.php · login.php · logout.php
-                password.php · events.php · images.php · upload.php
-                menus.php     ← öffentlich: Änderungsdatum + Seitenbilder der Karten
-                ausnahmen.php ← öffentlich lesen, Speichern nur eingeloggt
-                auth.php      ← wird beim ersten Login erzeugt (nicht im Repo)
+                password.php · events.php · images.php · upload.php · status.php
+                menus.php      ← öffentlich: Änderungsdatum + Seitenbilder der Karten
+                ausnahmen.php  ← öffentlich lesen, Speichern nur eingeloggt
+                stammdaten.php ← öffentlich lesen, Speichern nur eingeloggt
+                vorgabe.json   ← beim Bauen erzeugt: die Ausgangswerte fürs CMS
+                auth.php       ← wird beim ersten Login erzeugt (nicht im Repo)
 ```

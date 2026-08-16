@@ -18,6 +18,13 @@
   .btn-dark { @apply bg-ink text-cream hover:bg-terracotta; }
 }
 
+/* Die seitlichen Reveal-Varianten unten starten 52px versetzt. Bis die
+   Animation gelaufen ist, ragt das über den Viewport hinaus und die Seite
+   lässt sich seitlich schieben (auf /catering und /zimmer gemessen: 12px).
+   `clip` statt `hidden`, weil `hidden` hier das position:sticky auf
+   /foodtruck stilllegen würde — `clip` lässt es intakt. */
+html, body { overflow-x: clip; }
+
 /* SSR-sicherer Reveal: nur wenn JS die Klasse setzt, wird animiert */
 .reveal-ready {
   opacity: 0;

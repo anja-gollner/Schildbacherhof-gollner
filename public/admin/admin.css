@@ -89,3 +89,15 @@ textarea{min-height:96px;resize:vertical}
 .divider{height:1px;background:var(--line);margin:2.5rem 0}
 .muted{color:var(--muted)}
 .stack > * + *{margin-top:1.5rem}
+
+/* Uhrzeit-Felder im Wochenplan.
+   Ohne diese Regel greift oben input{width:100%}, und jedes der vier Felder
+   einer Tageszeile belegt eine eigene Zeile — aus sieben Zeilen würden
+   achtundzwanzig. */
+input.zeit{width:auto;min-width:6.6rem;padding:.5rem .55rem}
+
+/* Das hidden-Attribut durchsetzen.
+   Die Browser-Grundregel [hidden]{display:none} ist schwächer als jede eigene
+   display-Angabe — .row{display:grid} hat sie ausgehebelt, dadurch standen im
+   Feiertags-Editor die Abweich-Zeiten auch bei „ganztägig geschlossen" da. */
+[hidden]{display:none !important}

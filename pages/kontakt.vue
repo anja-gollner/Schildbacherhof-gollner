@@ -4,7 +4,8 @@ useSeo({
   description: 'Tisch reservieren, Zimmer anfragen oder Catering planen. Schildbach 42, 8230 Hartberg — telefonisch unter +43 664 1785544 oder über das Formular.'
 })
 
-const zeiten = zeitenKompakt()
+// Als computed, damit im CMS geänderte Öffnungszeiten auch hier ankommen.
+const zeiten = computed(() => zeitenKompakt())
 
 const form = reactive({
   anliegen: 'Tischreservierung',

@@ -4,6 +4,17 @@
 //
 // Grund: Vorher standen Telefonnummer und E-Mail an vier Stellen im Code — im
 // Impressum eine andere als im Footer. Wer hier ändert, ändert überall.
+//
+// Die Werte hier sind der Ausgangsstand. Im CMS unter „Basisdaten" lassen sie
+// sich am Server überschreiben; `plugins/stammdaten.client.ts` holt das beim
+// Laden ab und schreibt es über das Objekt. Weil `BETRIEB` reaktiv ist, ziehen
+// alle Stellen im Code automatisch nach — dort muss nichts angepasst werden.
+
+// `reactive` wird in Nuxt sonst automatisch eingebunden. Hier steht der Import
+// trotzdem, weil nuxt.config.ts diese Datei beim Bauen direkt lädt, um die
+// Ausgangswerte fürs CMS herauszuschreiben — außerhalb von Nuxt gäbe es die
+// automatische Einbindung nicht.
+import { reactive } from 'vue'
 
 const ADRESSE = {
   strasse: 'Schildbach 42',
@@ -14,16 +25,12 @@ const ADRESSE = {
   landCode: 'AT'
 }
 
-// Für Kartenlinks: Name + volle Adresse, URL-sicher kodiert.
-const ZIEL = encodeURIComponent(`Der Schildbacherhof, ${ADRESSE.strasse}, ${ADRESSE.plz} ${ADRESSE.ort}`)
-
-export const BETRIEB = {
+export const BETRIEB = reactive({
   name: 'Der Schildbacherhof',
   inhaberin: 'Margit Maria Gollner',
   seit: 1967,
 
   adresse: ADRESSE,
-  adresseZeile: `${ADRESSE.strasse}, ${ADRESSE.plz} ${ADRESSE.ort}`,
 
   // Telefon: 'roh' für den tel:-Link, 'anzeige' für den Fließtext.
   telefonRoh: '+436641785544',
@@ -40,26 +47,77 @@ export const BETRIEB = {
   kueche: 'Österreichisch, regional',
   preisklasse: '€€',
 
-  karte: `https://www.google.com/maps/search/?api=1&query=${ZIEL}`,
-  route: `https://www.google.com/maps/dir/?api=1&destination=${ZIEL}`,
+  // Als Getter statt als fertiger Text: sonst würde eine im CMS geänderte
+  // Adresse zwar im Impressum stehen, der Kartenlink aber weiter zur alten
+  // führen. So wird bei jedem Zugriff neu aus der aktuellen Adresse gebaut.
+  get adresseZeile(): string {
+    return `${this.adresse.strasse}, ${this.adresse.plz} ${this.adresse.ort}`
+  },
+  get mapsZiel(): string {
+    return encodeURIComponent(`${this.name}, ${this.adresseZeile}`)
+  },
+  get karte(): string {
+    return `https://www.google.com/maps/search/?api=1&query=${this.mapsZiel}`
+  },
+  get route(): string {
+    return `https://www.google.com/maps/dir/?api=1&destination=${this.mapsZiel}`
+  },
 
   social: [
     { name: 'Instagram', url: 'https://www.instagram.com/derschildbacherhof/' },
     { name: 'Facebook',  url: 'https://www.facebook.com/Schildbacherhof' }
   ]
-}
+})
 
 // Öffnungszeiten in Minuten ab Mitternacht. Leere slots = Ruhetag.
 // dow folgt JavaScript: 0 = Sonntag.
-export const OEFFNUNGSZEITEN = [
+export const OEFFNUNGSZEITEN = reactive([
   { lang: 'Montag',     kurz: 'Mo', dow: 1, slots: [[660, 900], [1020, 1290]] },
-  { lang: 'Dienstag',   kurz: 'Di', dow: 2, slots: [] },
+  { lang: 'Dienstag',   kurz: 'Di', dow: 2, slots: [] as number[][] },
   { lang: 'Mittwoch',   kurz: 'Mi', dow: 3, slots: [[660, 900], [1020, 1290]] },
   { lang: 'Donnerstag', kurz: 'Do', dow: 4, slots: [[660, 900], [1020, 1290]] },
   { lang: 'Freitag',    kurz: 'Fr', dow: 5, slots: [[660, 900], [1020, 1290]] },
   { lang: 'Samstag',    kurz: 'Sa', dow: 6, slots: [[660, 900], [1020, 1290]] },
   { lang: 'Sonntag',    kurz: 'So', dow: 0, slots: [[660, 960]] }
-]
+])
+
+/**
+ * Übernimmt die im CMS gespeicherten Basisdaten.
+ *
+ * Bewusst Feld für Feld statt per Object.assign: die gespeicherte Datei
+ * enthält nur, was jemand geändert hat, und ein pauschales Zuweisen würde
+ * z. B. beim Überschreiben der Adresse Land und Ortsangabe fürs Finanzamt
+ * mitlöschen. Alles Unbekannte wird ignoriert.
+ */
+export function stammdatenUebernehmen(d: Record<string, any> | null | undefined): void {
+  if (!d || typeof d !== 'object') return
+
+  for (const k of ['telefon', 'telefonRoh', 'email'] as const) {
+    if (typeof d[k] === 'string' && d[k]) BETRIEB[k] = d[k]
+  }
+
+  if (d.adresse && typeof d.adresse === 'object') {
+    for (const k of ['strasse', 'plz', 'ort'] as const) {
+      if (typeof d.adresse[k] === 'string' && d.adresse[k]) BETRIEB.adresse[k] = d.adresse[k]
+    }
+  }
+
+  if (d.social && typeof d.social === 'object') {
+    for (const eintrag of BETRIEB.social) {
+      const url = d.social[eintrag.name]
+      if (typeof url === 'string' && url) eintrag.url = url
+    }
+  }
+
+  // Der Wochenplan kommt nur vollständig oder gar nicht — ein Tag ohne
+  // Zeitfenster ist ein Ruhetag und damit eine echte Angabe, kein „fehlt".
+  if (Array.isArray(d.oeffnung) && d.oeffnung.length === 7) {
+    for (const tag of d.oeffnung) {
+      const ziel = OEFFNUNGSZEITEN.find(t => t.dow === tag?.dow)
+      if (ziel && Array.isArray(tag.slots)) ziel.slots = tag.slots
+    }
+  }
+}
 
 export function zeitText(m: number): string {
   const h = Math.floor(m / 60), mm = m % 60

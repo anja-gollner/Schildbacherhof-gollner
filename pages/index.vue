@@ -51,6 +51,11 @@ const datumKurz = (iso) => {
   return isNaN(d) ? iso : d.toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit' })
 }
 
+// Werden die Öffnungszeiten im CMS geändert, treffen sie kurz nach dem Laden
+// ein. Ohne diesen Beobachter stünde bis zum nächsten Minutentakt noch der
+// Status auf Basis des alten Wochenplans da.
+watch(OEFFNUNGSZEITEN, computeStatus, { deep: true })
+
 let statusTimer
 onMounted(async () => {
   computeStatus()

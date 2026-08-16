@@ -3,7 +3,7 @@
   const app = document.getElementById('app');
   const toastEl = document.getElementById('toast');
 
-  const state = { csrf: '', events: [], images: [], ausnahmen: [], editIndex: null };
+  const state = { csrf: '', events: [], images: [], ausnahmen: [], basis: null, editIndex: null };
 
   // ── Helpers ─────────────────────────────────────────────
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
@@ -123,6 +123,20 @@
       <div class="wrap stack">
         <section>
           <div class="section-title">
+            <div><p class="eyebrow">Basisdaten</p><h2>Kontakt, Adresse & Öffnungszeiten</h2></div>
+          </div>
+          <p class="muted" style="margin:-.4rem 0 1.2rem;font-size:.9rem">
+            Was hier steht, erscheint überall auf der Website – im Impressum genauso wie
+            in der Fußzeile. Änderungen sind sofort live. Ein Feld leer lassen heißt:
+            es gilt wieder der ursprünglich eingetragene Wert.
+          </p>
+          <div id="basisListe"><p class="muted">wird geladen …</p></div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section>
+          <div class="section-title">
             <div><p class="eyebrow">Events</p><h2>Themenabende verwalten</h2></div>
             <button class="btn btn-primary" id="add">+ Neuer Event</button>
           </div>
@@ -178,14 +192,183 @@
     document.querySelectorAll('[data-pdf]').forEach((el) => el.addEventListener('submit', onPdfUpload));
 
     try {
-      const [ev, im, au] = await Promise.all([api('events.php'), api('images.php'), api('ausnahmen.php')]);
+      // vorgabe.json trägt die beim Bauen eingetragenen Ausgangswerte,
+      // stammdaten.php nur das, was jemand davon überschrieben hat.
+      const [ev, im, au, vg, st] = await Promise.all([
+        api('events.php'), api('images.php'), api('ausnahmen.php'),
+        api('vorgabe.json'), api('stammdaten.php')
+      ]);
       state.events = ev.events || [];
       state.images = im.images || [];
       state.ausnahmen = au.ausnahmen || [];
+      state.basis = basisZusammenfuehren(vg, st);
     } catch (e) { toast(e.message, true); }
     renderList();
+    renderBasis();
     renderAusnahmen();
     renderStatus();
+  }
+
+  // ── Basisdaten ──────────────────────────────────────────
+  const minZuZeit = (m) =>
+    `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
+  const zeitZuMin = (s) => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '').trim());
+    if (!m) return null;
+    const min = +m[1] * 60 + +m[2];
+    return min >= 0 && min <= 1440 ? min : null;
+  };
+
+  /** Ausgangswerte und Überschreibungen zu dem verschmelzen, was gerade gilt. */
+  function basisZusammenfuehren(vorgabe, stamm) {
+    const v = vorgabe || {}, s = stamm || {};
+    return {
+      telefon:    s.telefon    ?? v.telefon    ?? '',
+      telefonRoh: s.telefonRoh ?? v.telefonRoh ?? '',
+      email:      s.email      ?? v.email      ?? '',
+      adresse: {
+        strasse: s.adresse?.strasse ?? v.adresse?.strasse ?? '',
+        plz:     s.adresse?.plz     ?? v.adresse?.plz     ?? '',
+        ort:     s.adresse?.ort     ?? v.adresse?.ort     ?? ''
+      },
+      social: {
+        Instagram: s.social?.Instagram ?? v.social?.Instagram ?? '',
+        Facebook:  s.social?.Facebook  ?? v.social?.Facebook  ?? ''
+      },
+      // Die Tagesnamen stehen nur in der Vorgabe; gespeichert wird nur dow+slots.
+      oeffnung: (v.oeffnung || []).map((tag) => {
+        const eigen = (s.oeffnung || []).find((x) => x.dow === tag.dow);
+        return { dow: tag.dow, lang: tag.lang, slots: (eigen?.slots ?? tag.slots ?? []).map((p) => [p[0], p[1]]) };
+      })
+    };
+  }
+
+  function zeitfeld(i, nr, pos, wert) {
+    return `<input type="time" class="zeit" data-tag="${i}" data-nr="${nr}" data-pos="${pos}"
+                   value="${wert === null ? '' : esc(minZuZeit(wert))}" />`;
+  }
+
+  function renderBasis() {
+    const el = document.getElementById('basisListe');
+    if (!el) return;
+    const b = state.basis;
+    if (!b) { el.innerHTML = `<p class="muted">Basisdaten konnten nicht geladen werden.</p>`; return; }
+
+    const tage = b.oeffnung.map((t, i) => {
+      const zu = t.slots.length === 0;
+      const s1 = t.slots[0] || [null, null];
+      const s2 = t.slots[1] || [null, null];
+      return `<div class="card" style="margin-bottom:.55rem;padding:.85rem 1rem">
+        <div style="display:flex;flex-wrap:wrap;gap:.7rem 1.1rem;align-items:center">
+          <strong style="width:6.5rem;flex-shrink:0">${esc(t.lang)}</strong>
+          <label class="inline"><input type="checkbox" class="ruhetag" data-tag="${i}" ${zu ? 'checked' : ''} /> Ruhetag</label>
+          <span data-zeilen="${i}" ${zu ? 'hidden' : ''} style="display:flex;flex-wrap:wrap;gap:.4rem .55rem;align-items:center">
+            <span class="hint">Mittag</span> ${zeitfeld(i, 0, 0, s1[0])} – ${zeitfeld(i, 0, 1, s1[1])}
+            <span class="hint" style="margin-left:.5rem">Abend</span> ${zeitfeld(i, 1, 0, s2[0])} – ${zeitfeld(i, 1, 1, s2[1])}
+          </span>
+        </div>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="card" style="margin-bottom:1rem">
+        <h3 style="font-size:1.05rem;margin-bottom:.8rem">Kontakt</h3>
+        <div class="row">
+          <div class="field"><label>Telefon <span class="hint">(so wie es dasteht)</span></label>
+            <input type="text" data-b="telefon" value="${esc(b.telefon)}" placeholder="+43 664 1785544" /></div>
+          <div class="field"><label>Telefon zum Anwählen <span class="hint">(ohne Leerzeichen)</span></label>
+            <input type="text" data-b="telefonRoh" value="${esc(b.telefonRoh)}" placeholder="+436641785544" /></div>
+        </div>
+        <div class="field"><label>E-Mail</label>
+          <input type="email" data-b="email" value="${esc(b.email)}" /></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <h3 style="font-size:1.05rem;margin-bottom:.8rem">Adresse</h3>
+        <div class="field"><label>Straße und Hausnummer</label>
+          <input type="text" data-b="adresse.strasse" value="${esc(b.adresse.strasse)}" /></div>
+        <div class="row">
+          <div class="field"><label>PLZ</label>
+            <input type="text" data-b="adresse.plz" value="${esc(b.adresse.plz)}" /></div>
+          <div class="field"><label>Ort</label>
+            <input type="text" data-b="adresse.ort" value="${esc(b.adresse.ort)}" /></div>
+        </div>
+        <p class="hint">Die Kartenlinks „Route planen" und „Auf der Karte" werden hieraus gebaut – die musst du nicht extra ändern.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <h3 style="font-size:1.05rem;margin-bottom:.8rem">Profile</h3>
+        <div class="field"><label>Instagram</label>
+          <input type="url" data-b="social.Instagram" value="${esc(b.social.Instagram)}" placeholder="https://www.instagram.com/…" /></div>
+        <div class="field"><label>Facebook</label>
+          <input type="url" data-b="social.Facebook" value="${esc(b.social.Facebook)}" placeholder="https://www.facebook.com/…" /></div>
+      </div>
+
+      <h3 style="font-size:1.05rem;margin:1.4rem 0 .5rem">Öffnungszeiten</h3>
+      <p class="muted" style="margin:0 0 .9rem;font-size:.9rem">
+        Der normale Wochenplan. Einzelne Feiertage und Urlaub trägst du weiter unten
+        unter „Feiertage &amp; Urlaub" ein – dort überschreiben sie diesen Plan.
+        Durchgehend geöffnet? Dann nur die Zeile „Mittag" ausfüllen und „Abend" leer lassen.
+      </p>
+      ${tage}
+
+      <button class="btn btn-primary" id="saveBasis" style="margin-top:.9rem">Basisdaten speichern</button>`;
+
+    el.querySelectorAll('[data-b]').forEach((inp) => {
+      inp.addEventListener('input', () => {
+        const [a, c] = inp.dataset.b.split('.');
+        if (c) state.basis[a][c] = inp.value; else state.basis[a] = inp.value;
+      });
+    });
+
+    el.querySelectorAll('.ruhetag').forEach((cb) => {
+      cb.addEventListener('change', () => {
+        const zeilen = el.querySelector(`[data-zeilen="${cb.dataset.tag}"]`);
+        if (zeilen) zeilen.hidden = cb.checked;
+      });
+    });
+
+    el.querySelector('#saveBasis').onclick = saveBasis;
+  }
+
+  async function saveBasis() {
+    const el = document.getElementById('basisListe');
+    const b = state.basis;
+
+    // Wochenplan aus den Feldern einsammeln. Ein angehakter Ruhetag bedeutet
+    // "keine Zeitfenster"; ein halb ausgefülltes Paar wird verworfen, statt
+    // es stillschweigend zu einer erfundenen Uhrzeit zu ergänzen.
+    const plan = [];
+    for (let i = 0; i < b.oeffnung.length; i++) {
+      const tag = b.oeffnung[i];
+      const zu = el.querySelector(`.ruhetag[data-tag="${i}"]`).checked;
+      const slots = [];
+      if (!zu) {
+        for (const nr of [0, 1]) {
+          const von = zeitZuMin(el.querySelector(`.zeit[data-tag="${i}"][data-nr="${nr}"][data-pos="0"]`).value);
+          const bis = zeitZuMin(el.querySelector(`.zeit[data-tag="${i}"][data-nr="${nr}"][data-pos="1"]`).value);
+          if (von === null || bis === null) continue;
+          if (bis <= von) { toast(`${tag.lang}: „bis" muss nach „von" liegen.`, true); return; }
+          slots.push([von, bis]);
+        }
+        if (!slots.length) { toast(`${tag.lang}: bitte Zeiten eintragen oder Ruhetag anhaken.`, true); return; }
+      }
+      plan.push({ dow: tag.dow, slots });
+    }
+
+    try {
+      await api('stammdaten.php', {
+        method: 'POST',
+        body: {
+          telefon: b.telefon, telefonRoh: b.telefonRoh, email: b.email,
+          adresse: b.adresse, social: b.social, oeffnung: plan
+        }
+      });
+      b.oeffnung = b.oeffnung.map((t, i) => ({ ...t, slots: plan[i].slots }));
+      renderBasis();
+      toast('Basisdaten gespeichert – sofort live');
+    } catch (e) { toast(e.message, true); }
   }
 
   // ── Server-Diagnose ─────────────────────────────────────
