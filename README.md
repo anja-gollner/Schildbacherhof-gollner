@@ -10,6 +10,14 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
+### Wenn `npm run dev` mit `Failed to resolve import "#app-manifest"` startet
+Das passiert, wenn vorher `npm run generate` gelaufen ist: der Build schreibt
+`.nuxt` um, und der Dev-Server startet dann auf einem veralteten Vite-Cache.
+Kein echter Fehler im Code — einfach mit geleertem Cache starten:
+```bash
+npm run dev:clean
+```
+
 ## Für FileZilla bauen (statisch)
 ```bash
 npm run generate
