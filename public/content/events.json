@@ -1,0 +1,29 @@
+[
+  {
+    "id": "candlelight-juli",
+    "title": "Candlelight Dinner",
+    "date": "2026-07-18T19:00",
+    "subtitle": "5-Gang-Menü bei Kerzenschein",
+    "text": "Ein Abend in fünf Gängen — saisonal, regional, von Florian kuratiert. Begrüßungssekt inklusive.",
+    "price": "89 € pro Person",
+    "image": "/images/marquee/marquee-03.jpg"
+  },
+  {
+    "id": "wild-august",
+    "title": "Wild & Wald",
+    "date": "2026-08-22T18:30",
+    "subtitle": "4-Gang-Menü zur Jagdsaison",
+    "text": "Heimisches Wild, sorgfältig in Szene gesetzt. Passende Weinbegleitung auf Wunsch.",
+    "price": "75 € pro Person",
+    "image": "/images/marquee/marquee-06.jpg"
+  },
+  {
+    "id": "herbst-september",
+    "title": "Herbstgenuss",
+    "date": "2026-09-19T19:00",
+    "subtitle": "5-Gang-Menü mit Kürbis & Co.",
+    "text": "Der Herbst auf dem Teller — von deftig bis fein.",
+    "price": "85 € pro Person",
+    "image": "/images/marquee/marquee-01.jpg"
+  }
+]
