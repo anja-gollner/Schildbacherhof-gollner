@@ -16,6 +16,32 @@ Erreichbar unter: **`https://schildbacherhof.at/admin/`**
 
 Vergangene Events blendet die Website automatisch aus — nichts manuell löschen.
 
+## Speisekarte austauschen (der normale Weg)
+
+1. `/admin/` öffnen, einloggen.
+2. Unter **Speisekarten** bei *Wochenmenü* bzw. *À la carte* die neue PDF-Datei
+   auswählen und auf **Hochladen** klicken.
+3. Fertig — die Karte ist sofort live.
+
+**Der Dateiname ist dabei völlig egal.** Die Datei darf `Menü KW34.pdf`,
+`scan_002.pdf` oder sonst wie heißen; das CMS legt sie serverseitig unter dem
+richtigen Namen ab (`wochenmenue.pdf` bzw. `a-la-carte.pdf`). Genau deshalb ist
+das CMS der bessere Weg als FileZilla: dort müsste man den Namen exakt treffen,
+und ein `Wochenmenue.pdf` oder `wochenmenue.PDF` würde stillschweigend nicht
+greifen.
+
+Die Website zeigt unter der Karte automatisch **„Stand: <Datum>"** — das kommt aus
+dem Änderungsdatum der Datei am Server (`api/menus.php`), da muss nichts gepflegt
+werden. Derselbe Zeitstempel hängt als `?v=…` an der PDF-Adresse. Das ist wichtig,
+weil der Dateiname ja gleich bleibt: ohne diesen Zusatz würden Gäste, die die alte
+Karte schon einmal geöffnet haben, sie aus dem Browser-Cache weiter angezeigt
+bekommen — teils tagelang.
+
+> Falls doch einmal per FileZilla getauscht wird: Datei exakt `wochenmenue.pdf`
+> bzw. `a-la-carte.pdf` nennen, in den Ordner `pdf/` legen. „Stand:" und
+> Cache-Busting funktionieren auch dann, weil beides am Änderungsdatum der Datei
+> hängt und nicht an einem Eintrag im CMS.
+
 > Die fixen Formate auf der Events-Seite (Candlelight Dinner, Business Dinner,
 > Geburtstagstafeln, Agape, Firmenfeiern …) sind bewusst **fest im Code** und werden
 > nicht übers CMS gepflegt. Wenn sich die ändern sollen: kurz Bescheid geben.
@@ -78,5 +104,6 @@ php -S localhost:8000 -t .output/public
 public/admin/   index.php · admin.css · app.js     ← Oberfläche
 public/api/     _bootstrap.php · session.php · login.php · logout.php
                 password.php · events.php · images.php · upload.php
+                menus.php  ← öffentlich, ohne Login: Änderungsdatum der Karten-PDFs
                 auth.php   ← wird beim ersten Login erzeugt (nicht im Repo)
 ```

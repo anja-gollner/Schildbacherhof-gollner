@@ -2,10 +2,39 @@
 useHead({ title: 'Restaurant & Wirtshaus — Schildbacherhof' })
 const tab = ref('woche')
 const menus = {
-  woche:  { label: 'Wochenmenü',  src: '/pdf/wochenmenue.pdf' },
-  carte:  { label: 'À la carte',  src: '/pdf/a-la-carte.pdf' }
+  woche: { label: 'Wochenmenü', file: 'wochenmenue' },
+  carte: { label: 'À la carte',  file: 'a-la-carte' }
 }
-const current = computed(() => menus[tab.value])
+
+// Änderungsdatum der PDFs vom Server holen (api/menus.php). Der Zeitstempel
+// landet als ?v= in der URL — sonst zeigt der Browser nach einem Upload im CMS
+// womöglich noch die alte Karte aus dem Cache. Schlägt der Abruf fehl (z. B.
+// im Nuxt-Dev-Server, der kein PHP ausführt), bleibt es bei der nackten URL.
+const stamps = ref({})
+onMounted(async () => {
+  try {
+    const d = await $fetch('/api/menus.php', { cache: 'no-cache' })
+    if (d && typeof d === 'object' && !Array.isArray(d)) stamps.value = d
+  } catch (e) { /* ohne Zeitstempel weiter — die Karte lädt trotzdem */ }
+})
+
+const current = computed(() => {
+  const m = menus[tab.value]
+  const s = stamps.value[m.file]
+  const base = `/pdf/${m.file}.pdf`
+  return {
+    label: m.label,
+    src: s?.v ? `${base}?v=${s.v}` : base,
+    updated: s?.updated || null
+  }
+})
+
+const standText = computed(() => {
+  if (!current.value.updated) return null
+  const d = new Date(current.value.updated)
+  if (isNaN(d)) return null
+  return d.toLocaleDateString('de-AT', { day: '2-digit', month: 'long', year: 'numeric' })
+})
 
 // Impressionen
 const galerie = [
@@ -90,7 +119,10 @@ const galerie = [
           </transition>
         </div>
 
-        <p class="mt-4 text-muted text-sm">Die Karten werden laufend aktualisiert.</p>
+        <p class="mt-4 text-muted text-sm">
+          <template v-if="standText">Stand: {{ standText }}.</template>
+          <template v-else>Die Karten werden laufend aktualisiert.</template>
+        </p>
       </div>
     </section>
   </div>

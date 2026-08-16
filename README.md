@@ -24,8 +24,10 @@ Fonts: Fraunces (Display) + Inter (Text).
 ## Inhalte pflegen
 - **CMS (empfohlen):** `https://schildbacherhof.at/admin/` — Events anlegen/bearbeiten,
   Bilder & Speisekarten-PDFs hochladen, ohne Code. Details in **[CMS.md](CMS.md)**.
-- **Wochenmenü / Speisekarten:** PDFs unter `public/pdf/` (`wochenmenue.pdf`,
-  `a-la-carte.pdf`) — bevorzugt über das CMS hochladen.
+- **Wochenmenü / Speisekarten:** über das CMS hochladen — der Dateiname der
+  hochgeladenen Datei ist egal, das CMS legt sie richtig ab. Die Restaurant-Seite
+  zeigt automatisch „Stand: <Datum>" und umgeht den Browser-Cache. Details unter
+  *Speisekarte austauschen* in **[CMS.md](CMS.md)**.
 - **Events:** `public/content/events.json` (oder bequem übers CMS). Jeder Eintrag hat
   `date` (ISO). Die Seite zeigt automatisch die **kommenden** Termine und blendet
   vergangene aus — nichts manuell löschen.

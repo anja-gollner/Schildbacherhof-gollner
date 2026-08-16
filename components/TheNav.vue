@@ -53,7 +53,16 @@ const dark = computed(() => scrolled.value && !open.value)
   >
     <nav class="container-x flex items-center justify-between" :class="(scrolled && !open) ? 'py-3' : 'py-5'">
       <!-- Logo -->
-      <NuxtLink to="/" class="relative z-[60]" aria-label="Der Schildbacherhof — Startseite">
+      <!-- Bei offenem Mobile-Menü ausgeblendet: dort trägt das Logo am Fuß des
+           Overlays den Startseiten-Link, sonst stünde dasselbe Schild doppelt im Bild. -->
+      <NuxtLink
+        to="/"
+        class="relative z-[60] transition-opacity duration-300"
+        :class="open ? 'opacity-0 pointer-events-none' : 'opacity-100'"
+        :aria-hidden="open ? 'true' : undefined"
+        :tabindex="open ? -1 : undefined"
+        aria-label="Der Schildbacherhof — Startseite"
+      >
         <img
           src="/images/schildbacherhof-logo.png"
           alt="Der Schildbacherhof"
@@ -135,7 +144,15 @@ const dark = computed(() => scrolled.value && !open.value)
             <NuxtLink to="/kontakt" class="btn btn-primary w-full" @click="open = false">
               Tisch reservieren →
             </NuxtLink>
-            <p class="mt-5 text-cream/50 text-[0.7rem] tracking-[0.12em] uppercase">gollner² · im Schildbacherhof</p>
+            <NuxtLink
+              to="/" class="mt-6 inline-block" @click="open = false"
+              aria-label="Der Schildbacherhof — Startseite"
+            >
+              <img
+                src="/images/schildbacherhof-logo.png" alt="Der Schildbacherhof"
+                class="h-11 w-auto opacity-80 transition-opacity hover:opacity-100"
+              />
+            </NuxtLink>
           </div>
         </div>
       </div>
