@@ -6,8 +6,8 @@ declare(strict_types=1);
 // ─────────────────────────────────────────────────────────────
 //  EINSTELLUNGEN  (bei Bedarf hier anpassen)
 // ─────────────────────────────────────────────────────────────
-$TO        = 'office@schildbacherhof.at';   // Empfänger der Anfragen
-$FROM      = 'office@schildbacherhof.at';   // Absender — MUSS ein real existierendes
+$TO        = 'anfragen@schildbacherhof.at';   // Empfänger der Anfragen
+$FROM      = 'anfragen@schildbacherhof.at';   // Absender — MUSS ein real existierendes
                                             // Postfach eurer Domain sein, sonst stufen
                                             // viele Mailserver die Nachricht als Spam ein.
 $FROM_NAME = 'Schildbacherhof Website';
