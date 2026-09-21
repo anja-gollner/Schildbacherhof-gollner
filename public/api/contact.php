@@ -10,9 +10,11 @@ $TO        = 'anfragen@schildbacherhof.at';   // Empfänger der Anfragen. Bewuss
                                             // öffentliche Adresse aus useBetrieb.ts (office@):
                                             // die bleibt fürs Impressum, hier landen nur
                                             // Reservierungen und Formular-Anfragen.
-$FROM      = 'anfragen@schildbacherhof.at';   // Absender — MUSS ein real existierendes
-                                            // Postfach eurer Domain sein, sonst stufen
-                                            // viele Mailserver die Nachricht als Spam ein.
+$FROM      = 'office@schildbacherhof.at';     // Absender — MUSS ein real existierendes
+                                            // Postfach eurer Domain sein: All-Inkl lehnt
+                                            // den Versand sonst komplett ab, andere Server
+                                            // stufen die Mail als Spam ein. Deshalb office@
+                                            // und nicht anfragen@ — office@ existiert sicher.
 $FROM_NAME = 'Schildbacherhof Website';
 // ─────────────────────────────────────────────────────────────
 
