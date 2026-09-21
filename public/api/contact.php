@@ -6,7 +6,10 @@ declare(strict_types=1);
 // ─────────────────────────────────────────────────────────────
 //  EINSTELLUNGEN  (bei Bedarf hier anpassen)
 // ─────────────────────────────────────────────────────────────
-$TO        = 'anfragen@schildbacherhof.at';   // Empfänger der Anfragen
+$TO        = 'anfragen@schildbacherhof.at';   // Empfänger der Anfragen. Bewusst nicht die
+                                            // öffentliche Adresse aus useBetrieb.ts (office@):
+                                            // die bleibt fürs Impressum, hier landen nur
+                                            // Reservierungen und Formular-Anfragen.
 $FROM      = 'anfragen@schildbacherhof.at';   // Absender — MUSS ein real existierendes
                                             // Postfach eurer Domain sein, sonst stufen
                                             // viele Mailserver die Nachricht als Spam ein.
@@ -92,6 +95,6 @@ $params = "-f$FROM";
 $ok = @mail($TO, $subject, $bodyText, implode("\r\n", $headers), $params);
 if (!$ok) $ok = @mail($TO, $subject, $bodyText, implode("\r\n", $headers)); // Fallback ohne -f
 
-if (!$ok) out(['error' => 'Die Nachricht konnte nicht gesendet werden. Bitte direkt an office@schildbacherhof.at.'], 500);
+if (!$ok) out(['error' => "Die Nachricht konnte nicht gesendet werden. Bitte direkt an $TO."], 500);
 
 out(['ok' => true]);

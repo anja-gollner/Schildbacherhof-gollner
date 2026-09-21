@@ -35,7 +35,7 @@ export const BETRIEB = reactive({
   // Telefon: 'roh' für den tel:-Link, 'anzeige' für den Fließtext.
   telefonRoh: '+436641785544',
   telefon: '+43 664 1785544',
-  email: 'anfragen@schildbacherhof.at',
+  email: 'office@schildbacherhof.at',
 
   uid: 'ATU67261599',
   behoerde: 'Bezirkshauptmannschaft Hartberg',
