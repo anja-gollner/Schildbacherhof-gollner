@@ -2,8 +2,19 @@
 useSeo({
   title: 'Gästezimmer in Hartberg — Schildbacherhof',
   description: 'Sechs Gästezimmer direkt an der B54, Parkplatz vor der Tür, Restaurant im Haus. 75 € pro Person inklusive Frühstück.',
-  bild: '/images/restaurant-exterior-day.jpg'
+  bild: '/images/zimmer/zimmer-bett-fenster.jpg'
 })
+
+// Drei Blicke ins Zimmer — bewusst nur drei, nicht die ganze Galerie.
+// Die Seite soll zeigen, was einen erwartet, nicht jede Ecke dokumentieren.
+const einblicke = [
+  { bild: '/images/zimmer/zimmer-sitzecke.jpg', alt: 'Sitzecke mit Schlafsofa, Schreibtisch und Fernseher',
+    titel: 'Sitzecke & Schreibtisch', text: 'Zum Arbeiten, Lesen oder einfach Ankommen.' },
+  { bild: '/images/zimmer/zimmer-bad.jpg', alt: 'Bad mit ebenerdiger Dusche und Waschbecken',
+    titel: 'Bad mit Dusche', text: 'Hell, ebenerdig, Föhn inklusive.' },
+  { bild: '/images/zimmer/zimmer-zirbe.jpg', alt: 'Kleiderschrank und Garderobe aus Zirbenholz',
+    titel: 'Zirbenholz', text: 'Bett, Schrank und Garderobe — aus heimischem Holz.' }
+]
 
 const vorteile = [
   { title: 'Verkehrsgünstig an der B54', text: 'Direkt an der Bundesstraße — leicht zu finden und bestens angebunden Richtung Hartberg und A2.' },
@@ -17,14 +28,14 @@ const vorteile = [
 
 <template>
   <div>
-    <PageHeader eyebrow="Gästezimmer" title="Zentral & unkompliziert." image="/images/restaurant-exterior-day.jpg"
+    <PageHeader eyebrow="Gästezimmer" title="Zentral & unkompliziert." image="/images/zimmer/zimmer-bett-fenster.jpg"
       text="Direkt an der B54 — top angebunden, leicht zu finden und ideal, wenn ihr nach einem guten Abend einfach bleiben oder auf der Durchreise praktisch übernachten wollt." />
 
     <!-- Intro -->
     <section class="bg-cream py-20 md:py-28">
       <div class="container-x grid gap-10 md:grid-cols-2 items-center">
         <div v-reveal.left class="group overflow-hidden rounded-2xl aspect-[4/3]">
-          <img src="/images/marquee/marquee-04.jpg" alt="Gästezimmer im Schildbacherhof"
+          <img src="/images/zimmer/zimmer-bett.jpg" alt="Doppelzimmer mit Bett aus Zirbenholz"
                class="w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105" />
         </div>
         <div v-reveal:100.right>
@@ -50,6 +61,28 @@ const vorteile = [
             Verfügbarkeit und melden uns mit einem Angebot.
           </p>
           <NuxtLink to="/kontakt" class="btn btn-primary">Zimmer anfragen</NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- Einblicke -->
+    <section class="bg-cream pb-20 md:pb-28">
+      <div class="container-x">
+        <p v-reveal class="eyebrow text-sage mb-3">Ein Blick hinein</p>
+        <h2 v-reveal class="font-display text-[clamp(1.8rem,4vw,3rem)] leading-tight max-w-2xl mb-10">
+          Schlicht, hell, aus Holz.
+        </h2>
+        <div class="grid gap-5 sm:gap-6 sm:grid-cols-3">
+          <figure v-for="(e, i) in einblicke" :key="e.titel" v-reveal="i * 90" class="group m-0">
+            <div class="overflow-hidden rounded-2xl aspect-[4/5]">
+              <img :src="e.bild" :alt="e.alt" loading="lazy"
+                   class="w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105" />
+            </div>
+            <figcaption class="mt-4">
+              <h3 class="font-display text-xl leading-tight">{{ e.titel }}</h3>
+              <p class="text-muted text-[0.95rem] leading-relaxed mt-1">{{ e.text }}</p>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </section>

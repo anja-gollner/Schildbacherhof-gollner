@@ -25,3 +25,6 @@ public/api/vorgabe.json
 
 # Im CMS gepflegte Basisdaten — leben nur am Server
 public/content/
+
+# Rohfotos der Gästezimmer (HEIC, 130 MB) — gehören nicht ins Repo
+rooms/
