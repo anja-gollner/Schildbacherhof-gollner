@@ -3,7 +3,7 @@ const saeulen = [
   { no: '01', title: 'Restaurant & Wirtshaus', text: 'Mittags wie abends dieselbe hochwertige, regionale Küche von Küchenchef Florian Gollner.', to: '/restaurant', img: '/images/marquee/marquee-01.jpg' },
   { no: '02', title: 'Catering', text: 'Von der Firmenfeier bis zur Hochzeit — wir bringen den Schildbacherhof zu euch.', to: '/catering', img: '/images/catering.jpg' },
   { no: '03', title: 'Foodtruck', text: 'Unsere Küche on the road — für Feste, Märkte und Events in der Region.', to: '/foodtruck', img: '/images/foodtruck.jpg' },
-  { no: '04', title: 'Gästezimmer', text: 'Ankommen, bleiben, durchatmen. Gemütliche Zimmer mitten in der Oststeiermark.', to: '/zimmer', img: '/images/zimmer/zimmer-bett-hoch.jpg' },
+  { no: '04', title: 'Gästezimmer', text: 'Ankommen, bleiben, durchatmen. Sechs Zimmer mit Betten aus Zirbenholz.', to: '/zimmer', img: '/images/zimmer/zimmer-bett-hoch.jpg' },
   { no: '05', title: 'Events & Menüs', text: 'Candlelight Dinner, 4- bis 5-Gang-Abende und besondere Anlässe.', to: '/events', img: '/images/marquee/marquee-02.jpg' }
 ]
 

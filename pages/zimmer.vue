@@ -1,7 +1,7 @@
 <script setup>
 useSeo({
   title: 'Gästezimmer in Hartberg — Schildbacherhof',
-  description: 'Sechs Gästezimmer direkt an der B54, Parkplatz vor der Tür, Restaurant im Haus. 75 € pro Person inklusive Frühstück.',
+  description: 'Sechs Gästezimmer mit Betten aus Zirbenholz, direkt an der B54, Parkplatz vor der Tür, Restaurant im Haus. 75 € pro Person inklusive Frühstück.',
   bild: '/images/zimmer/zimmer-bett-fenster.jpg'
 })
 
@@ -13,7 +13,7 @@ const einblicke = [
   { bild: '/images/zimmer/zimmer-bad.jpg', alt: 'Bad mit ebenerdiger Dusche und Waschbecken',
     titel: 'Bad mit Dusche', text: 'Hell, ebenerdig, Föhn inklusive.' },
   { bild: '/images/zimmer/zimmer-zirbe.jpg', alt: 'Kleiderschrank und Garderobe aus Zirbenholz',
-    titel: 'Zirbenholz', text: 'Bett, Schrank und Garderobe — aus heimischem Holz.' }
+    titel: 'Zirbenholz', text: 'Schrank und Garderobe aus Zirbe — wie die Betten.' }
 ]
 
 const vorteile = [
@@ -21,7 +21,7 @@ const vorteile = [
   { title: 'Parken vor der Tür',         text: 'Stellplätze direkt am Haus. Ankommen, ausladen, einchecken — ohne Parkplatzsuche.' },
   { title: 'Restaurant im Haus',         text: 'Abends gut essen und einfach oben schlafen — kein Autofahren mehr nach dem Dinner.' },
   { title: 'Für Reisende & Business',    text: 'Unkomplizierte Übernachtung für Durchreisende, Monteure und Geschäftsgäste.' },
-  { title: 'Zentral in der Region',      text: 'Guter Ausgangspunkt für Termine, Ausflüge und die ganze Oststeiermark.' },
+  { title: 'Zirbenholz',                 text: 'Bett, Schrank und Garderobe aus Zirbe — heimisches Holz, das den Raum warm macht, ohne dass es viel braucht.' },
   { title: 'Unkompliziert',              text: 'Einfache Anfrage, flexible Absprache, schnelles Ein- und Auschecken.' }
 ]
 </script>
@@ -29,7 +29,7 @@ const vorteile = [
 <template>
   <div>
     <PageHeader eyebrow="Gästezimmer" title="Zentral & unkompliziert." image="/images/zimmer/zimmer-bett-fenster.jpg"
-      text="Direkt an der B54 — top angebunden, leicht zu finden und ideal, wenn ihr nach einem guten Abend einfach bleiben oder auf der Durchreise praktisch übernachten wollt." />
+      text="Sechs Zimmer mit Betten aus Zirbenholz, direkt an der B54 — leicht zu finden und ideal, wenn ihr nach einem guten Abend einfach bleiben oder auf der Durchreise praktisch übernachten wollt." />
 
     <!-- Intro -->
     <section class="bg-cream py-20 md:py-28">
@@ -42,6 +42,7 @@ const vorteile = [
           <p class="eyebrow text-sage mb-3">Ankommen & bleiben</p>
           <h2 class="font-display text-[clamp(1.8rem,4vw,3rem)] leading-tight mb-4">Mitten im Geschehen — nicht abgelegen.</h2>
           <p class="text-muted leading-relaxed mb-4">Unsere sechs Gästezimmer sind perfekt für alle, die es praktisch mögen: gut erreichbar, direkt am Haus geparkt, und mit dem Restaurant nur eine Treppe entfernt.</p>
+          <p class="text-muted leading-relaxed mb-4">Bett, Schrank und Garderobe sind aus <strong class="text-ink">Zirbenholz</strong> — man riecht es, sobald man die Tür aufmacht, und der Zirbe sagt man nach, dass man darin ruhiger schläft.</p>
 
           <!-- Preis und Zimmerzahl auf einen Blick — die zwei Angaben, nach denen
                zuerst gesucht wird, bevor überhaupt jemand anfragt. -->
@@ -70,7 +71,7 @@ const vorteile = [
       <div class="container-x">
         <p v-reveal class="eyebrow text-sage mb-3">Ein Blick hinein</p>
         <h2 v-reveal class="font-display text-[clamp(1.8rem,4vw,3rem)] leading-tight max-w-2xl mb-10">
-          Schlicht, hell, aus Holz.
+          Schlicht, hell, aus Zirbenholz.
         </h2>
         <div class="grid gap-5 sm:gap-6 sm:grid-cols-3">
           <figure v-for="(e, i) in einblicke" :key="e.titel" v-reveal="i * 90" class="group m-0">
